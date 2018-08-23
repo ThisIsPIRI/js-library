@@ -1,9 +1,12 @@
 ﻿/**A simple timer.
  * @param onstop {Function} The Function to be called when the timer stops. A single Boolean, indicating whether the time ran out naturally, will be passed into it.
  * @param updateCallback {Function} The Function to be called when the time String is updated. The String will be passed into it.
+ * @param format {Function} A Function that accepts an amount of time in milliseconds and two Booleans indicating
+ * whether to show time over 1h/under 1s and returns a String representation of the time.
+ * See https://github.com/ThisIsPIRI/web-tools/blob/master/Timer/timer.js for an implementation.
  * @param showH {Boolean} Whether to show time longer than 60 minutes as separate hours.
  * @param showOne {Boolean} Whether to show time shorter than 1 second.*/
-const Timer = function(onstop, updateCallback, showH, showOne) {
+const Timer = function(onstop, updateCallback, format, showH, showOne) {
 	//Times are in milliseconds
 	this.time = 0;
 	this.updateRate = 60;
@@ -12,32 +15,16 @@ const Timer = function(onstop, updateCallback, showH, showOne) {
 	this.prev = null;
 	this.onstop = onstop;
 	this.updateCallback = updateCallback;
+	this.format = format;
 	this.showH = showH;
 	this.showOne = showOne;
 };
-//Modified from https://stackoverflow.com/a/6313008 under CC BY-SA
-Timer.format = function (number, showHour, showUnderOne) {
-	var secondSum = number / 1000;
-	if(!showUnderOne) secondSum = Math.floor(secondSum);
-	var hours = showHour ? Math.floor(secondSum / 3600) : 0; //To show over an hour as minutes, assing 0 to hours when !showHour
-	var minutes = Math.floor((secondSum - (hours * 3600)) / 60);
-	var seconds = secondSum - (hours * 3600) - (minutes * 60);
-	if(showUnderOne) seconds = seconds.toFixed(3);
-	
-	if (hours < 10) hours = '0' + hours;
-	if (minutes < 10) minutes = '0' + minutes;
-	if (seconds < 10) seconds = '0' + seconds;
-	var result = "";
-	if(showHour) result += hours + ':';
-	result += minutes + ':' + seconds;
-	return result;
-};
 Timer.prototype.getTimeString = function() {
-	return Timer.format(this.time, this.showH, this.showOne);
-}
+	return this.format(this.time, this.showH, this.showOne);
+};
 Timer.prototype.updateTimeString = function() {
 	this.updateCallback(this.getTimeString());
-}
+};
 Timer.prototype.addTime = function(amount) {
 	this.time += amount;
 	if(this.time < 0) 
