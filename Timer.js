@@ -1,9 +1,9 @@
 ﻿/**A simple timer.
- * @param onstop {Function} The Function to be called when the time's up.
- * @param updateTimeString {Function} The Function to be called when the time String is updated. The String will be passed into it.
+ * @param onstop {Function} The Function to be called when the timer stops. A single Boolean, indicating whether the time ran out naturally, will be passed into it.
+ * @param updateCallback {Function} The Function to be called when the time String is updated. The String will be passed into it.
  * @param showH {Boolean} Whether to show time longer than 60 minutes as separate hours.
  * @param showOne {Boolean} Whether to show time shorter than 1 second.*/
-const Timer = function(onstop, updateTimeString, showH, showOne) {
+const Timer = function(onstop, updateCallback, showH, showOne) {
 	//Times are in milliseconds
 	this.time = 0;
 	this.updateRate = 60;
@@ -11,7 +11,7 @@ const Timer = function(onstop, updateTimeString, showH, showOne) {
 	this.running = false;
 	this.prev = null;
 	this.onstop = onstop;
-	this.updateTimeString = updateTimeString;
+	this.updateCallback = updateCallback;
 	this.showH = showH;
 	this.showOne = showOne;
 };
@@ -35,9 +35,14 @@ Timer.format = function (number, showHour, showUnderOne) {
 Timer.prototype.getTimeString = function() {
 	return Timer.format(this.time, this.showH, this.showOne);
 }
+Timer.prototype.updateTimeString = function() {
+	this.updateCallback(this.getTimeString());
+}
 Timer.prototype.addTime = function(amount) {
 	this.time += amount;
-	this.updateTimeString(this.getTimeString());
+	if(this.time < 0) 
+		this.time = 0;
+	this.updateTimeString();
 };
 Timer.prototype.update = function() {
 	if(!this.running) return;
@@ -45,16 +50,15 @@ Timer.prototype.update = function() {
 	if(this.prev === null) this.prev = started - this.updateRate;
 	this.time -= started - this.prev;
 	if(this.time <= 0) {
-		this.stop();
+		this.stop(true);
 		return; //If it doesn't return here, prev will be set to started and used wrongly in the next session
 	}
-	this.updateTimeString(this.getTimeString());
+	this.updateTimeString();
 	this.prev = started;
 };
 Timer.prototype.start = function() {
 	if(!this.running && this.time > 0) {
-		if(this.prev !== null) alert("failsafe 0 triggered: prev !== null when starting");
-		this.intervalId = setInterval(this.update, this.updateRate);
+		this.intervalId = setInterval(() => {this.update();}, this.updateRate);
 		this.running = true;
 	}
 };
@@ -65,9 +69,11 @@ Timer.prototype.pause = function() {
 		this.prev = null;
 	}
 };
-Timer.prototype.stop = function() {
-		this.pause();
-		this.time = 0;
-		this.updateTimeString(this.getTimeString());
-		this.onstop();
+/**Call to stop the timer.
+ * @param timeRanOut {Boolean} Whether the time ran out naturally. Will be passed to onstop.*/
+Timer.prototype.stop = function(timeRanOut) {
+	this.pause();
+	this.time = 0;
+	this.updateTimeString();
+	this.onstop(timeRanOut);
 };
