@@ -1,12 +1,20 @@
-//An object literal for reading local files in local web apps.
-const fileReader = {
-	read : function(fileName, callback) {
+//An object literal for making simple AJAX requests.
+const ajaxRequester = {
+	/**Sends an AJAX request to uri.
+	 * @param uri {String} The URI to send the request to.
+	 * @param callback {Function} The function to call onload.
+	 * @param callOnError {Boolean} Whether to callback onerror, passing an empty String.*/
+	request : function(uri, callback, callOnError) {
 		const request = new XMLHttpRequest();
-		request.open("GET", fileName, true);
+		request.open("GET", uri, true);
 		request.responseType = "text";
 		request.onload = function() {
 			callback(request.responseText);
-		}
+		};
+		if(callOnError)
+			request.onerror = function() {
+				callback('');
+			};
 		request.send(null);
 	},
 	/*Replaces all occurrences of replaceThese in data withSeparator
