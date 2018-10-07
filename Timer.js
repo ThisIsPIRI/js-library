@@ -3,7 +3,6 @@
  * @param updateCallback {Function} The Function to be called when the time String is updated. The String will be passed into it.
  * @param format {Function} A Function that accepts an amount of time in milliseconds and two Booleans indicating
  * whether to show time over 1h/under 1s and returns a String representation of the time.
- * See https://github.com/ThisIsPIRI/web-tools/blob/master/Timer/timer.js for an implementation.
  * @param showH {Boolean} Whether to show time longer than 60 minutes as separate hours.
  * @param showOne {Boolean} Whether to show time shorter than 1 second.*/
 const Timer = function(onstop, updateCallback, format, showH, showOne) {
