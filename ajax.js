@@ -17,6 +17,19 @@ const ajaxRequester = {
 			};
 		request.send(null);
 	},
+	/**Sends AJAX requests to uris. Arguments to callback will be (data, uri) and arguments to callOnError ('', uri).
+	 * @param uris {Array} Array of uris.*/
+	requestAll : function(uris, callback, callOnError) {
+		uris.forEach(function(uri) {
+			newCallback = function(data) {
+				callback(data, uri);
+			};
+			newCallOnError = function(data) {
+				callOnError(data, uri);
+			};
+			ajaxRequester.request(uri, newCallback, newCallOnError);
+		});
+	},
 	/*Replaces all occurrences of replaceThese in data withSeparator
 	and returns the array of all tokens separated withSeparator.
 	replaceThese may have multiple characters; pass them as one concatenated String.
