@@ -32,7 +32,7 @@ Timer.prototype.addTime = function(amount) {
 };
 Timer.prototype.update = function() {
 	if(!this.running) return;
-	var started = new Date().getTime();
+	const started = Date.now();
 	if(this.prev === null) this.prev = started - this.updateRate;
 	this.time -= started - this.prev;
 	if(this.time <= 0) {
